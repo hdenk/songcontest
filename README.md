@@ -1,24 +1,15 @@
-Songcontest
-================
+# Songcontest
 
-Eine App für den maedchen.de Songcontest.
+## Running the project
 
-## Usage
+In a terminal, start the web server:
 
-Start server-process
+    lein repl
+    (start-server)
 
-```
-lein ring  server
-```
+In another terminal, start figwheel:
 
-## Dependencies
+    lein figwheel
 
-[clojure](https://github.com/clojure/clojure)
-[clojurescript](https://github.com/clojure/clojurescript)
-[reagent-project](https://github.com/reagent-project)
-[secretary](https://github.com/gf3/secretary)
-[cljs-ajax](https://github.com/JulianBirch/cljs-ajax)
-[ring-clojure](https://github.com/ring-clojure)
-[ring-edn](https://github.com/tailrecursion/ring-edn)
-[compojure](https://github.com/weavejester/compojure)
-
+Finally browse to
+[http://localhost:8080/index.html](http://localhost:8080/index.html)

@@ -1,5 +1,7 @@
-/target/
-.lein-deps-sum
-.lein-repl-history
-.lein-plugins/
-.lein-failures
+# exclude everything except directory foo/bar
+/*
+!project.clj
+!README.md
+!/src
+!/src-cljs
+!/resoureces/public/css/style.css
