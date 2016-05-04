@@ -2,6 +2,7 @@
 /*
 !project.clj
 !README.md
+!/resources/public/css/style.css
 !/src
 !/src-cljs
-!/resources/public/css/style.css
+!/test
