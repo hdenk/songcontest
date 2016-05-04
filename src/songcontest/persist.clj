@@ -34,52 +34,47 @@
   ([db id]
    (jdbc/delete! db :contest ["id = ?" id])))
 
-;;; Promotion
+;;; Nomination
 
-(def Promotion
+(def Nomination
  {:name s/Str
   :species s/Str})
 
-(defn create-promotion!
+(defn create-nomination!
   ([db m]
    (s/validate Contest m)
-   (let [result (jdbc/insert! db :promotion m)
+   (let [result (jdbc/insert! db :nomination m)
          id (get (first result) (keyword "scope_identity()"))]
      id)))
 
-(defn read-promotion
+(defn read-nomination
   ([db]
-   (jdbc/query db ["select * from promotion"]))
+   (jdbc/query db ["select * from nomination"]))
   ([db id]
-   (first (jdbc/query db [(str "select * from promotion\n"
+   (first (jdbc/query db [(str "select * from nomination\n"
                                "where id = ?") id]))))
 
-(defn update-promotion!
+(defn update-nomination!
   [db id m]
-  (jdbc/update! db :promotion m ["id = ?" id]))
+  (jdbc/update! db :nomination m ["id = ?" id]))
 
-(defn delete-promotion!
+(defn delete-nomination!
   ([db]
-   (jdbc/execute! db ["delete from promotion"]))
+   (jdbc/execute! db ["delete from nomination"]))
   ([db id]
-   (jdbc/delete! db :promotion ["id = ?" id])))
+   (jdbc/delete! db :nomination ["id = ?" id])))
 
 ;;; Initialization
 
 (defn insert-samples! [db]
-  (println "inserting some contests")
   (do
-    (create-contest! db {:name    "Painted-snipe"
-                         :species "Rostratulidae"})
-    (create-contest! db {:name    "Yellow-backed duiker"
-                         :species "Cephalophus silvicultor"})
-    (create-contest! db {:name    "Aardwolf"
-                         :species "Proteles cristata"})
-    (create-contest! db {:name    "Gnu"
-                         :species "Dbochaetes gnou"})
-    (create-contest! db {:name    "Atlantic salmon"
-                         :species "Salmo salar"})
-    (create-promotion! db {:name    "rororo"
+   (println "inserting some contests")
+   (create-contest! db {:name    "100"
+                        :state \C})
+   (create-contest! db {:name    "101"
+                        :state \N})
+   (println "inserting some nominations")
+   (create-nomination! db {:name    "rororo"
                            :species "rarara"})))
 
 (defn init
@@ -90,14 +85,14 @@
         (println "creating contest table")
         (jdbc/execute! conn
                        [(jdbc/create-table-ddl :contest
-                                               [:id "bigint primary key auto_increment"]
-                                               [:name "varchar"]
-                                               [:species "varchar"])])
-        (println "creating promotion table")
+                                               [:id "BIGINT PRIMARY KEY AUTO_INCREMENT"]
+                                               [:name "VARCHAR NOT NULL"]
+                                               [:state "CHAR(1) NOT NULL"])])
+        (println "creating nomination table")
         (jdbc/execute! conn
-                       [(jdbc/create-table-ddl :promotion
-                                               [:id "bigint primary key auto_increment"]
-                                               [:name "varchar"]
-                                               [:species "varchar"])])
+                       [(jdbc/create-table-ddl :nomination
+                                               [:id "BIGINT PRIMARY KEY AUTO_INCREMENT"]
+                                               [:name "VARCHAR"]
+                                               [:species "VARCHAR"])])
         (insert-samples! conn))
       (println "table contest already exists"))))

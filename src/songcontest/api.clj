@@ -51,35 +51,35 @@
            :delete! (fn [ctx] (persist/delete-contest! db/db id))
            :handle-exception handle-exception)))
 
-  (ANY "/api/promotion"
+  (ANY "/api/nomination"
        [name species]
        (resource
         :available-media-types ["application/edn"]
         :allowed-methods [:get :post]
         :handle-ok (fn [ctx]
-                     (let [found (persist/read-promotion db/db)]
+                     (let [found (persist/read-nomination db/db)]
                        (condp = (-> ctx :representation :media-type)
                          "application/edn" found
                          "application/json" (json/generate-string found))))
-        :post! (fn [ctx] {::id (persist/create-promotion! db/db {:name name :species species})})
-        :post-redirect? (fn [ctx] {:location (str "/api/promotion/" (::id ctx))})
+        :post! (fn [ctx] {::id (persist/create-nomination! db/db {:name name :species species})})
+        :post-redirect? (fn [ctx] {:location (str "/api/nomination/" (::id ctx))})
         :handle-exception handle-exception))
 
-  (ANY "/api/promotion/:id"
+  (ANY "/api/nomination/:id"
        [id name species]
        (let [id (edn/read-string id)]
          (resource
            :available-media-types ["application/edn"]
            :allowed-methods [:get :put :delete]
            :handle-ok (fn [ctx]
-                        (persist/read-promotion db/db id))
+                        (persist/read-nomination db/db id))
            :put! (fn [ctx]
-                   (persist/update-promotion!
+                   (persist/update-nomination!
                      db/db id
                      {:name name :species species}))
            :new? false
            :respond-with-entity? true
-           :delete! (fn [ctx] (persist/delete-promotion! db/db id))
+           :delete! (fn [ctx] (persist/delete-nomination! db/db id))
            :handle-exception handle-exception)))
   
   (GET "/greeting" 
@@ -94,9 +94,9 @@
        []
        (pages/user :contest))
 
-  (GET "/promotion" 
+  (GET "/nomination" 
        []
-       (pages/user :promotion))
+       (pages/user :nomination))
 
   (GET "/rating" 
        []
