@@ -19,4 +19,5 @@
       (io/reader)
       (json/read :key-fn keyword)))
 
-(load-config-file)
+(->> (load-config-file)
+     (s/validate Config))
