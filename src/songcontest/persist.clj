@@ -1,21 +1,16 @@
 (ns songcontest.persist
   (:refer-clojure :exclude [read])
   (:require [clojure.java.jdbc :as jdbc]
-            [schema.core :as s]
+            [songcontest.schema :as schema]
             [songcontest.db :as db]))
 
 ;;; Contest
 
-(def Contest
- {:name s/Str
-  :state (s/enum :new :nominate :rate :closed)})
-
 (defn create-contest!
   ([db m]
-   (s/validate Contest m)
-   (let [result (jdbc/insert! db :contest (assoc m :state \N))
+   (let [result (jdbc/insert! db :contest  (schema/coerce-contest->db m))
          id (get (first result) (keyword "scope_identity()"))]
-     id)))
+        id)))
 
 (defn read-contest
   ([db]
@@ -26,7 +21,7 @@
 
 (defn update-contest!
   [db id m]
-  (jdbc/update! db :contest m ["id = ?" id]))
+  (jdbc/update! db :contest (schema/coerce-contest->db m) ["id = ?" id]))
 
 (defn delete-contest!
   ([db]
@@ -35,10 +30,6 @@
    (jdbc/delete! db :contest ["id = ?" id])))
 
 ;;; Nomination
-
-(def Nomination
- {:name s/Str
-  :species s/Str})
 
 (defn create-nomination!
   ([db m]

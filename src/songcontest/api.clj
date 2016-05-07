@@ -22,7 +22,7 @@
 (defroutes routes
 
   (ANY "/api/contest"
-       [name species]
+       [name phase]
        (resource
         :available-media-types ["application/edn"]
         :allowed-methods [:get :post]
@@ -32,9 +32,8 @@
                          "application/edn" found
                          "application/json" (json/generate-string found))))
         :post! (fn [ctx] 
-                 (let [c (schema/coerce-and-validate Contest 
-                                                     {:name name 
-                                                      :phase phase})]
+                 (let [c (schema/coerce-contest {:name name 
+                                                 :phase phase})]
                    {::id (persist/create-contest! db/db c)})) 
                                  
         :post-redirect? (fn [ctx] {:location (str "/api/contest/" (::id ctx))})

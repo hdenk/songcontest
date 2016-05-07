@@ -13,27 +13,25 @@
 
 (def Contest-Phase (s/enum :new :nominate :rate :closed))
 
-(def Contest-Phase-DB (s/enum /N /O /R /C))
-
 (def Contest
   {:name s/Str
    :phase Contest-Phase})
 
-(def Contest-DB
-  {:name s/Str
-   :phase Contest-Phase-DB})
+(defn coerce-contest [m]
+  (coerce-and-validate Contest 
+                       s-coerce/string-coercion-matcher
+                       m))
+
+(defn coerce-contest->db [m]
+  (if (contains? m :phase) 
+    (update-in m [:phase] (fn [x] (if (keyword? x) (name x) x)))
+    m))
+
+(defn coerce-db->contest [m]
+  (if (contains? m :phase) 
+    (update-in m [:phase] (fn [x] (if (string? x) (keyword x) x)))
+    m))
 
 (def Nomination
   {:name s/Str
    :species s/Str})
-
-(defn RequestParams->DatabaseParams
-  [{:keys [comment-id comment-body] :as request-params}]
-  {:id comment-id
-   :body comment-body})
-
-(def Contest->Database-coercer
-  (coerce/coercer Contest-DB {Contest-Phase-DB RequestParams->DatabaseParams
-                                  s/Int #(Integer/parseInt %)}))
-
-

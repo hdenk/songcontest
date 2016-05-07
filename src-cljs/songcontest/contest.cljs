@@ -58,20 +58,20 @@
 
 (defn input-valid? [atom]
   (and (seq (-> @atom :name))
-       (seq (-> @atom :species))))
+       (seq (-> @atom :phase))))
 
 (defn contest-row [a]
   (let [row-state (atom {:editing? false
                          :name     (:name a)
-                         :species  (:species a)})
+                         :phase  (:phase a)})
         current-contest (fn []
                          (assoc a
                                 :name (:name @row-state)
-                                :species (:species @row-state)))]
+                                :phase (:phase @row-state)))]
     (fn []
       [:tr
        [:td [editable-input row-state :name]]
-       [:td [editable-input row-state :species]]
+       [:td [editable-input row-state :phase]]
        [:td [:button.btn.btn-primary.pull-right
              {:disabled (not (input-valid? row-state))
               :on-click (fn []
@@ -84,14 +84,14 @@
              "\u00D7"]]])))
 
 (defn contest-form []
-  (let [initial-form-values {:name     ""
-                             :species  ""
+  (let [initial-form-values {:name ""
+                             :phase ""
                              :editing? true}
         form-input-state (atom initial-form-values)]
     (fn []
       [:tr
        [:td [editable-input form-input-state :name]]
-       [:td [editable-input form-input-state :species]]
+       [:td [editable-input form-input-state :phase]]
        [:td [:button.btn.btn-primary.pull-right
              {:disabled (not (input-valid? form-input-state))
               :on-click  (fn []
@@ -104,7 +104,7 @@
    [:table.table.table-striped
     [:thead
      [:tr
-      [:th "Name"] [:th "Species"] [:th ""] [:th ""]]]
+      [:th "Name"] [:th "Phase"] [:th ""] [:th ""]]]
     [:tbody
      (map (fn [contest]
             ^{:key (str "contest-row-" (:id contest))}
