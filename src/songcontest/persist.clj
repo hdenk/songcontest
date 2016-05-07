@@ -8,12 +8,12 @@
 
 (def Contest
  {:name s/Str
-  :species s/Str})
+  :state (s/enum :new :nominate :rate :closed)})
 
 (defn create-contest!
   ([db m]
    (s/validate Contest m)
-   (let [result (jdbc/insert! db :contest m)
+   (let [result (jdbc/insert! db :contest (assoc m :state \N))
          id (get (first result) (keyword "scope_identity()"))]
      id)))
 
@@ -64,35 +64,3 @@
   ([db id]
    (jdbc/delete! db :nomination ["id = ?" id])))
 
-;;; Initialization
-
-(defn insert-samples! [db]
-  (do
-   (println "inserting some contests")
-   (create-contest! db {:name    "100"
-                        :state \C})
-   (create-contest! db {:name    "101"
-                        :state \N})
-   (println "inserting some nominations")
-   (create-nomination! db {:name    "rororo"
-                           :species "rarara"})))
-
-(defn init
-  [db]
-  (jdbc/with-db-transaction [conn db]
-    (if-not (db/exists? conn "contest")
-      (do
-        (println "creating contest table")
-        (jdbc/execute! conn
-                       [(jdbc/create-table-ddl :contest
-                                               [:id "BIGINT PRIMARY KEY AUTO_INCREMENT"]
-                                               [:name "VARCHAR NOT NULL"]
-                                               [:state "CHAR(1) NOT NULL"])])
-        (println "creating nomination table")
-        (jdbc/execute! conn
-                       [(jdbc/create-table-ddl :nomination
-                                               [:id "BIGINT PRIMARY KEY AUTO_INCREMENT"]
-                                               [:name "VARCHAR"]
-                                               [:species "VARCHAR"])])
-        (insert-samples! conn))
-      (println "table contest already exists"))))

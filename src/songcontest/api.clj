@@ -9,6 +9,7 @@
      [clj-json.core :as json]
      [clojure.edn :as edn]
      [songcontest.pages :as pages]
+     [songcontest.schema :as schema]
      [songcontest.db :as db]
      [songcontest.persist :as persist]))
 
@@ -30,7 +31,12 @@
                        (condp = (-> ctx :representation :media-type)
                          "application/edn" found
                          "application/json" (json/generate-string found))))
-        :post! (fn [ctx] {::id (persist/create-contest! db/db {:name name :species species})})
+        :post! (fn [ctx] 
+                 (let [c (schema/coerce-and-validate Contest 
+                                                     {:name name 
+                                                      :phase phase})]
+                   {::id (persist/create-contest! db/db c)})) 
+                                 
         :post-redirect? (fn [ctx] {:location (str "/api/contest/" (::id ctx))})
         :handle-exception handle-exception))
 
@@ -115,4 +121,6 @@
 (defn init
   []
   (println "initializing application")
-  (persist/init db/db))
+  ;; check db
+  (if-not (db/exists? db/db "contest")
+    (println "database check failed")))
