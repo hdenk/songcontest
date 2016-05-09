@@ -55,10 +55,10 @@
     (persist/update-contest! db/db id-create contest2)
     (let [read-result-update (persist/read-contest db/db)
           {:keys [:id :name :phase]} (first read-result-update)]
-      (is (and (= (count read-result-update) 1)
-               (= id id-create)
-               (= name (:name contest2))
-               (= phase (:phase contest2)))))))
+      (is (= (count read-result-update) 1))
+      (is (= id id-create))
+      (is (= name (:name contest2)))
+      (is (= phase (:phase contest2))))))
 
 (deftest delete-contest []
   (create-test-table! :contest)
