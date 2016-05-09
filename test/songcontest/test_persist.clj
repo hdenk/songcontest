@@ -38,23 +38,34 @@
 
 ;;; Tests
 
-(deftest contest-crud []
+(deftest create-contest []
   (create-test-table! :contest)
-  (testing "read on empty table"
-    (is (= (count (persist/read-contest db/db)) 0)))
-  (testing "create"
-    (persist/create-contest! db/db contest1)
-    (let [read-result (persist/read-contest db/db)]
-      (is (and (= (count read-result) 1)
-               (= (:name (first read-result)) (:name contest1))
-               (= (:phase (first read-result)) (:phase contest1))))))
-  (testing "update"
-    (let [read-result (persist/read-contest db/db)
-          id (:id read-result)]
-      (persist/update-contest! db/db id contest2)
-      (let [read-result2 (persist/read-contest db/db)]
-        (is (and (= (count read-result2) 1)
-               (= (:name (first read-result2)) (:name contest2))
-               (= (:phase (first read-result2)) (:phase contest2))))))))
-        
+  (is (= (count (persist/read-contest db/db)) 0))
+  (persist/create-contest! db/db contest1)
+  (let [read-result (persist/read-contest db/db)]
+    (is (= (count read-result) 1))
+    (is (= (:name (first read-result)) (:name contest1)))
+    (is (= (:phase (first read-result)) (:phase contest1)))))
+
+(deftest update-contest []
+  (create-test-table! :contest)
+  (persist/create-contest! db/db contest1)
+  (let [read-result-create (persist/read-contest db/db)
+        id-create (:id (first read-result-create))]
+    (persist/update-contest! db/db id-create contest2)
+    (let [read-result-update (persist/read-contest db/db)
+          {:keys [:id :name :phase]} (first read-result-update)]
+      (is (and (= (count read-result-update) 1)
+               (= id id-create)
+               (= name (:name contest2))
+               (= phase (:phase contest2)))))))
+
+(deftest delete-contest []
+  (create-test-table! :contest)
+  (persist/create-contest! db/db contest1)
+  (let [read-result (persist/read-contest db/db)
+        id (:id (first read-result))]
+    (persist/delete-contest! db/db id)
+    (is (= (count (persist/read-contest db/db)) 0))))
+
 (run-tests)

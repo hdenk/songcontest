@@ -14,10 +14,10 @@
 
 (defn read-contest
   ([db]
-   (jdbc/query db ["select * from contest"]))
+   (map (fn [m] (schema/coerce-db->contest m)) (jdbc/query db ["select * from contest"])))
   ([db id]
-   (first (jdbc/query db [(str "select * from contest\n"
-                               "where id = ?") id]))))
+   (schema/coerce-db->contest (first (jdbc/query db [(str "select * from contest\n"
+                               "where id = ?") id])))))
 
 (defn update-contest!
   [db id m]
@@ -33,7 +33,6 @@
 
 (defn create-nomination!
   ([db m]
-   (s/validate Contest m)
    (let [result (jdbc/insert! db :nomination m)
          id (get (first result) (keyword "scope_identity()"))]
      id)))
