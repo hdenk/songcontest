@@ -32,15 +32,14 @@
                          "application/edn" found
                          "application/json" (json/generate-string found))))
         :post! (fn [ctx] 
-                 (let [c (schema/coerce-contest {:name name 
-                                                 :phase phase})]
+                 (let [c (schema/coerce-params->contest {:name name 
+                                                         :phase phase})]
                    {::id (persist/create-contest! db/db c)})) 
-                                 
         :post-redirect? (fn [ctx] {:location (str "/api/contest/" (::id ctx))})
         :handle-exception handle-exception))
 
   (ANY "/api/contest/:id"
-       [id name species]
+       [id name phase]
        (let [id (edn/read-string id)]
          (resource
            :available-media-types ["application/edn"]
@@ -48,43 +47,46 @@
            :handle-ok (fn [ctx]
                         (persist/read-contest db/db id))
            :put! (fn [ctx]
-                   (persist/update-contest!
-                     db/db id
-                     {:name name :species species}))
+                   (let [c (schema/coerce-params->contest {:name name 
+                                                           :phase phase})]
+                     (persist/update-contest! db/db id c)))
            :new? false
            :respond-with-entity? true
            :delete! (fn [ctx] (persist/delete-contest! db/db id))
            :handle-exception handle-exception)))
 
-  (ANY "/api/nomination"
-       [name species]
+  (ANY "/api/song"
+       [artist title]
        (resource
         :available-media-types ["application/edn"]
         :allowed-methods [:get :post]
         :handle-ok (fn [ctx]
-                     (let [found (persist/read-nomination db/db)]
+                     (let [found (persist/read-song db/db)]
                        (condp = (-> ctx :representation :media-type)
                          "application/edn" found
                          "application/json" (json/generate-string found))))
-        :post! (fn [ctx] {::id (persist/create-nomination! db/db {:name name :species species})})
-        :post-redirect? (fn [ctx] {:location (str "/api/nomination/" (::id ctx))})
+        :post! (fn [ctx] 
+                 (let [c (schema/coerce-params->song {:artist artist 
+                                                      :title title})]
+                   {::id (persist/create-song! db/db c)})) 
+        :post-redirect? (fn [ctx] {:location (str "/api/sonh/" (::id ctx))})
         :handle-exception handle-exception))
 
-  (ANY "/api/nomination/:id"
-       [id name species]
+  (ANY "/api/song/:id"
+       [id artist title]
        (let [id (edn/read-string id)]
          (resource
            :available-media-types ["application/edn"]
            :allowed-methods [:get :put :delete]
            :handle-ok (fn [ctx]
-                        (persist/read-nomination db/db id))
+                        (persist/read-song db/db id))
            :put! (fn [ctx]
-                   (persist/update-nomination!
-                     db/db id
-                     {:name name :species species}))
+                   (let [c (schema/coerce-params->song {:artist artist 
+                                                        :title title})]
+                     (persist/update-song! db/db id c)))
            :new? false
            :respond-with-entity? true
-           :delete! (fn [ctx] (persist/delete-nomination! db/db id))
+           :delete! (fn [ctx] (persist/delete-song! db/db id))
            :handle-exception handle-exception)))
   
   (GET "/greeting" 
@@ -99,15 +101,10 @@
        []
        (pages/user :contest))
 
-  (GET "/nomination" 
+  (GET "/song" 
        []
-       (pages/user :nomination))
+       (pages/user :song))
 
-  (GET "/rating" 
-       []
-       (pages/user :rating))
-
-  
   (resources "/" {:root "public"})
   (resources "/" {:root "/META-INF/resources"})
   (not-found "404"))

@@ -65,9 +65,9 @@
                          :name     (:name a)
                          :phase  (:phase a)})
         current-contest (fn []
-                         (assoc a
-                                :name (:name @row-state)
-                                :phase (:phase @row-state)))]
+                          (assoc a
+                                 :name (:name @row-state)
+                                 :phase (:phase @row-state)))]
     (fn []
       [:tr
        [:td [editable-input row-state :name]]

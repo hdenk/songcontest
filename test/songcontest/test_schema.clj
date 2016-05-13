@@ -6,6 +6,6 @@
 (def contest2 {:name "#102" :phase "new"})
 
 (deftest contest []
-  (is (= (schema/coerce-contest contest1) {:name "#101" :phase :closed})))
+  (is (= (schema/coerce-params->contest contest1) {:name "#101" :phase :closed})))
 
 (run-tests)

@@ -14,8 +14,7 @@
      [:body
        [:p
          [:a {:href "contest"} "Contest"]
-         [:a {:href "nomination"} "Nomination"]
-         [:a {:href "rating"} "Rating"]]]))
+         [:a {:href "song"} "Song"]]]))
 
 (defn user  
   [id]
@@ -28,8 +27,7 @@
      [:body
        [:p
          [:a {:href "contest"} "Contest"]
-         [:a {:href "nomination"} "Nomination"]
-         [:a {:href "rating"} "Rating"]]
+         [:a {:href "song"} "Song"]]
 
        [:div {:id "app"}] 
       

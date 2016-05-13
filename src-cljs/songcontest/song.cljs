@@ -1,4 +1,4 @@
-(ns songcontest.nomination
+(ns songcontest.song
   (:require-macros [cljs.core.async.macros :refer (go)])
   (:require
    [reagent.core :as reagent :refer [atom]]
@@ -10,9 +10,9 @@
 
 (defonce app-state (atom #{}))
 
-;; initial call to get nominations from server
+;; initial call to get songs from server
 (go (let [response
-          (<! (http/get "/api/nomination"))
+          (<! (http/get "/api/song"))
           data (:body response)]
       (reset! app-state (set data))))
 
@@ -21,29 +21,29 @@
 (defn remove-by-id [s id]
   (set (remove #(= id (:id %)) s)))
 
-(defn add-nomination! [nomination]
+(defn add-song! [song]
      (go (let [response 
-               (<! (http/post "/api/nomination" {:edn-params
-                                                 nomination}))]
+               (<! (http/post "/api/song" {:edn-params
+                                                 song}))]
           (swap! app-state conj (:body response)))))
 
-(defn remove-nomination! [nomination]
+(defn remove-song! [song]
   (go (let [response
-            (<! (http/delete (str "/api/nomination/"
-                                  (:id nomination))))]
+            (<! (http/delete (str "/api/song/"
+                                  (:id song))))]
         (if (= 200 (:status response))
-          (swap! app-state remove-by-id (:id nomination))))))
+          (swap! app-state remove-by-id (:id song))))))
  
-(defn update-nomination! [nomination]
+(defn update-song! [song]
   (go (let [response
-            (<! (http/put (str "/api/nomination/" (:id nomination))
-                          {:edn-params nomination}))
-            updated-nomination (:body response)]
+            (<! (http/put (str "/api/song/" (:id song))
+                          {:edn-params song}))
+            updated-song (:body response)]
         (swap! app-state
                (fn [old-state]
                  (conj
-                  (remove-by-id old-state (:id nomination))
-                  updated-nomination))))))
+                  (remove-by-id old-state (:id song))
+                  updated-song))))))
 
 ;;; end crud operations
 
@@ -57,61 +57,61 @@
     [:p (get @atom key)]))
 
 (defn input-valid? [atom]
-  (and (seq (-> @atom :name))
-       (seq (-> @atom :species))))
+  (and (seq (-> @atom :artist))
+       (seq (-> @atom :title))))
 
-(defn nomination-row [a]
+(defn song-row [a]
   (let [row-state (atom {:editing? false
-                         :name     (:name a)
-                         :species  (:species a)})
-        current-nomination (fn []
-                            (assoc a
-                                   :name (:name @row-state)
-                                   :species (:species @row-state)))]
+                         :artist     (:artist a)
+                         :title  (:title a)})
+        current-song (fn []
+                       (assoc a
+                              :artist (:artist @row-state)
+                              :title (:title @row-state)))]
     (fn []
       [:tr
-       [:td [editable-input row-state :name]]
-       [:td [editable-input row-state :species]]
+       [:td [editable-input row-state :artist]]
+       [:td [editable-input row-state :title]]
        [:td [:button.btn.btn-primary.pull-right
              {:disabled (not (input-valid? row-state))
               :on-click (fn []
                          (when (:editing? @row-state)
-                           (update-nomination! (current-nomination)))
+                           (update-song! (current-song)))
                          (swap! row-state update-in [:editing?] not))}
              (if (:editing? @row-state) "Save" "Edit")]]
        [:td [:button.btn.pull-right.btn-danger
-             {:on-click #(remove-nomination! (current-nomination))}
+             {:on-click #(remove-song! (current-song))}
              "\u00D7"]]])))
 
-(defn nomination-form []
-  (let [initial-form-values {:name     ""
-                             :species  ""
+(defn song-form []
+  (let [initial-form-values {:artist     ""
+                             :title  ""
                              :editing? true}
         form-input-state (atom initial-form-values)]
     (fn []
       [:tr
-       [:td [editable-input form-input-state :name]]
-       [:td [editable-input form-input-state :species]]
+       [:td [editable-input form-input-state :artist]]
+       [:td [editable-input form-input-state :title]]
        [:td [:button.btn.btn-primary.pull-right
              {:disabled (not (input-valid? form-input-state))
               :on-click  (fn []
-                          (add-nomination! @form-input-state)
+                          (add-song! @form-input-state)
                           (reset! form-input-state initial-form-values))}
              "Add"]]])))
 
-(defn nominations []
+(defn songs []
   [:div
    [:table.table.table-striped
     [:thead
      [:tr
-      [:th "Name"] [:th "Species"] [:th ""] [:th ""]]]
+      [:th "Artist"] [:th "Title"] [:th ""] [:th ""]]]
     [:tbody
-     (map (fn [nomination]
-            ^{:key (str "nomination-row-" (:id nomination))}
-            [nomination-row nomination])
-          (sort-by :name @app-state))
-     [nomination-form]]]])
+     (map (fn [song]
+            ^{:key (str "song-row-" (:id song))}
+            [song-row song])
+          (sort-by :artist @app-state))
+     [song-form]]]])
 
 (defn render-component []
-  (reagent/render-component [nominations]
+  (reagent/render-component [songs]
                           (js/document.getElementById "app")))

@@ -17,7 +17,7 @@
   {:name s/Str
    :phase Contest-Phase})
 
-(defn coerce-contest [m]
+(defn coerce-params->contest [m]
   (coerce-and-validate Contest 
                        s-coerce/string-coercion-matcher
                        m))
@@ -32,6 +32,33 @@
     (update-in m [:phase] (fn [x] (if (string? x) (keyword x) x)))
     m))
 
+(def Song
+  {:artist s/Str
+   :title s/Str})
+
+(defn coerce-params->song [m]
+  (coerce-and-validate Song 
+                       s-coerce/string-coercion-matcher
+                       m))
+
+(defn coerce-song->db [m]
+    m)
+
+(defn coerce-db->song [m]
+    m)
+
 (def Nomination
-  {:name s/Str
-   :species s/Str})
+  {:maedchen s/Num
+   :contest s/Num
+   :song s/Num})
+
+(defn coerce-params->nomination [m]
+  (coerce-and-validate Nomination 
+                       s-coerce/string-coercion-matcher
+                       m))
+
+(defn coerce-nomination->db [m]
+    m)
+
+(defn coerce-db->nomination [m]
+    m)
