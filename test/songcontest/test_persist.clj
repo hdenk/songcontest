@@ -32,14 +32,16 @@
 (defn create-test-table! [table]
     (jdbc/db-do-commands db/db (create-table-ddl table)))
 
+(def table-names [:contest :song :nomination])
+
 (defn clean-up!
   "Attempt to drop any test tables before we start a test."
   [test-function]
   (jdbc/with-db-transaction [t-conn db/db]
-    (doseq [table [:contest :song :nomination]]
+    (doseq [table table-names]
       (try
         (jdbc/db-do-commands t-conn (jdbc/drop-table-ddl table))
-        (catch Exception _)))) ;; ignore !?
+        (catch Exception _)))) ;; ignore !? (table doesnt exist)
   (test-function))
 
 ;;; Fixtures
@@ -155,6 +157,10 @@
 
 ;(run-tests)
 
-(clean-up! (fn []))
-(create-test-table! :contest)
-(create-test-table! :song)
+(defn init-db! [test-function]
+  (clean-up! (fn []))
+  (doseq [table table-names]
+    (create-test-table! table))
+  (test-function))
+
+;(init-db! (fn []))

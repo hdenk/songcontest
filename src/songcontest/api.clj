@@ -69,7 +69,7 @@
                  (let [c (schema/coerce-params->song {:artist artist 
                                                       :title title})]
                    {::id (persist/create-song! db/db c)})) 
-        :post-redirect? (fn [ctx] {:location (str "/api/sonh/" (::id ctx))})
+        :post-redirect? (fn [ctx] {:location (str "/api/song/" (::id ctx))})
         :handle-exception handle-exception))
 
   (ANY "/api/song/:id"
@@ -89,9 +89,9 @@
            :delete! (fn [ctx] (persist/delete-song! db/db id))
            :handle-exception handle-exception)))
   
-  (GET "/greeting" 
+  (GET "/version" 
        []
-       "Hello World!")
+       "Songcontest 0.1.0") ; TODO take Version from project.clj
   
   (GET "/" 
        []

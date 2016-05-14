@@ -23,9 +23,12 @@
 
   :source-paths ["src"]
 
-  :profiles {:dev {:plugins [[lein-figwheel "0.5.2"]]
-                   :figwheel {:http-server-root "public"
-                              :server-port 3449}}}
+  :profiles {:dev 
+             {:plugins [[lein-figwheel "0.5.2"]]
+              :dependencies [[javax.servlet/servlet-api "2.5"]
+                             [ring/ring-mock "0.3.0"]]
+              :figwheel {:http-server-root "public"
+                         :server-port 3449}}}
 
   :cljsbuild {:builds [{:id "reagent"
                         :source-paths ["src-cljs"]

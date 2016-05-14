@@ -17,16 +17,24 @@
   {:name s/Str
    :phase Contest-Phase})
 
+(defn coerce-params->contest [m] m)
+(defn coerce-contest->db [m] m)
+(defn coerce-db->contest [m] m)
+
+
+#_
 (defn coerce-params->contest [m]
   (coerce-and-validate Contest 
                        s-coerce/string-coercion-matcher
                        m))
 
+#_
 (defn coerce-contest->db [m]
   (if (contains? m :phase) 
     (update-in m [:phase] (fn [x] (if (keyword? x) (name x) x)))
     m))
 
+#_
 (defn coerce-db->contest [m]
   (if (contains? m :phase) 
     (update-in m [:phase] (fn [x] (if (string? x) (keyword x) x)))
