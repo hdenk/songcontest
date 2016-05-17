@@ -21,7 +21,6 @@
 (defn coerce-contest->db [m] m)
 (defn coerce-db->contest [m] m)
 
-
 #_
 (defn coerce-params->contest [m]
   (coerce-and-validate Contest 

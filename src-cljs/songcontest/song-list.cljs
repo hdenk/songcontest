@@ -1,4 +1,4 @@
-(ns songcontest.song
+(ns songcontest.song-list
   (:require-macros [cljs.core.async.macros :refer (go)])
   (:require
    [reagent.core :as reagent :refer [atom]]
@@ -8,13 +8,13 @@
 
 (enable-console-print!)
 
-(defonce app-state (atom #{}))
+(defonce document (atom #{}))
 
 ;; initial call to get songs from server
 (go (let [response
           (<! (http/get "/api/song"))
           data (:body response)]
-      (reset! app-state (set data))))
+      (reset! document (set data))))
 
 ;;; crud operations
 
@@ -25,21 +25,21 @@
      (go (let [response 
                (<! (http/post "/api/song" {:edn-params
                                                  song}))]
-          (swap! app-state conj (:body response)))))
+          (swap! document conj (:body response)))))
 
 (defn remove-song! [song]
   (go (let [response
             (<! (http/delete (str "/api/song/"
                                   (:id song))))]
         (if (= 200 (:status response))
-          (swap! app-state remove-by-id (:id song))))))
+          (swap! document remove-by-id (:id song))))))
  
 (defn update-song! [song]
   (go (let [response
             (<! (http/put (str "/api/song/" (:id song))
                           {:edn-params song}))
             updated-song (:body response)]
-        (swap! app-state
+        (swap! document
                (fn [old-state]
                  (conj
                   (remove-by-id old-state (:id song))
@@ -99,7 +99,7 @@
                           (reset! form-input-state initial-form-values))}
              "Add"]]])))
 
-(defn songs []
+(defn song-list []
   [:div
    [:table.table.table-striped
     [:thead
@@ -109,9 +109,9 @@
      (map (fn [song]
             ^{:key (str "song-row-" (:id song))}
             [song-row song])
-          (sort-by :artist @app-state))
+          (sort-by :artist @document))
      [song-form]]]])
 
 (defn render-component []
-  (reagent/render-component [songs]
+  (reagent/render-component [song-list]
                           (js/document.getElementById "app")))

@@ -48,8 +48,8 @@
 
 (use-fixtures :each clean-up!)
 
-(def contest1 {:name "#101" :phase :closed})
-(def contest2 {:name "#102" :phase :new})
+(def contest1 {:name "#101" :phase "closed"})
+(def contest2 {:name "#102" :phase "new"})
 (def song1 {:artist "Sonic Youth" :title "Shadow of a Doubt"})
 (def song2 {:artist "Monster Magnet" :title "Look to the Orb for the Warning"})
 (def nomination1 {:maedchen 0 :contest 0 :song 0})
@@ -163,4 +163,4 @@
     (create-test-table! table))
   (test-function))
 
-;(init-db! (fn []))
+(init-db! (fn []))

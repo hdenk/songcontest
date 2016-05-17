@@ -15,6 +15,7 @@
                    [org.clojure/java.jdbc "0.6.0-rc2"]
                    [com.h2database/h2 "1.4.189"]
                    [reagent "0.5.0"]
+                   [reagent-forms "0.5.23"]
                    [cljs-http "0.1.30"]]
 
   :plugins [[lein-cljsbuild "1.1.3"]]
@@ -36,7 +37,7 @@
                         :compiler {:output-to "resources/public/app.js"
                                    :output-dir "resources/public/out"
                                    :optimizations :none
-                                   :asset-path "out"
+                                   :asset-path "/out"
                                    :main "songcontest.app"
                                    :source-map true}}]}
 

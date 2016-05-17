@@ -8,7 +8,7 @@
      [ring.util.response :refer (redirect)]
      [clj-json.core :as json]
      [clojure.edn :as edn]
-     [songcontest.pages :as pages]
+     [songcontest.page :as page]
      [songcontest.schema :as schema]
      [songcontest.db :as db]
      [songcontest.persist :as persist]))
@@ -40,6 +40,7 @@
 
   (ANY "/api/contest/:id"
        [id name phase]
+       (println "###" phase "###") 
        (let [id (edn/read-string id)]
          (resource
            :available-media-types ["application/edn"]
@@ -91,19 +92,23 @@
   
   (GET "/version" 
        []
-       "Songcontest 0.1.0") ; TODO take Version from project.clj
+       "Songcontest Version 0.1.0") ; TODO take Version from project.clj
   
   (GET "/" 
        []
-      (pages/index))
+      (page/index))
 
   (GET "/contest" 
        []
-       (pages/user :contest))
+       (page/default "contest_list"))
 
+  (GET "/contest/:id" 
+       [id]
+       (page/default "contest_form" id))
+ 
   (GET "/song" 
        []
-       (pages/user :song))
+       (page/default "song_list"))
 
   (resources "/" {:root "public"})
   (resources "/" {:root "/META-INF/resources"})

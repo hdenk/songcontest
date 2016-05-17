@@ -1,4 +1,4 @@
-(ns songcontest.contest
+(ns songcontest.contest-list
   (:require-macros [cljs.core.async.macros :refer (go)])
   (:require
    [reagent.core :as reagent :refer [atom]]
@@ -8,13 +8,13 @@
 
 (enable-console-print!)
 
-(defonce app-state (atom #{}))
+(defonce document (atom #{}))
 
 ;; initial call to get contests from server
 (go (let [response
           (<! (http/get "/api/contest"))
           data (:body response)]
-      (reset! app-state (set data))))
+      (reset! document (set data))))
 
 ;;; crud operations
 
@@ -25,21 +25,23 @@
      (go (let [response 
                (<! (http/post "/api/contest" {:edn-params
                                               contest}))]
-          (swap! app-state conj (:body response)))))
+          (swap! document conj (:body response)))))
 
 (defn remove-contest! [contest]
   (go (let [response
             (<! (http/delete (str "/api/contest/"
                                   (:id contest))))]
         (if (= 200 (:status response))
-          (swap! app-state remove-by-id (:id contest))))))
- 
+          (swap! document remove-by-id (:id contest))))))
+
+(defn edit-contest [])
+
 (defn update-contest! [contest]
   (go (let [response
             (<! (http/put (str "/api/contest/" (:id contest))
                           {:edn-params contest}))
             updated-contest (:body response)]
-        (swap! app-state
+        (swap! document
                (fn [old-state]
                  (conj
                   (remove-by-id old-state (:id contest))
@@ -62,8 +64,8 @@
 
 (defn contest-row [a]
   (let [row-state (atom {:editing? false
-                         :name     (:name a)
-                         :phase  (:phase a)})
+                         :name (:name a)
+                         :phase (:phase a)})
         current-contest (fn []
                           (assoc a
                                  :name (:name @row-state)
@@ -78,7 +80,9 @@
                          (when (:editing? @row-state)
                            (update-contest! (current-contest)))
                          (swap! row-state update-in [:editing?] not))}
-             (if (:editing? @row-state) "Save" "Edit")]]
+             (if (:editing? @row-state) "Save*" "Edit")]
+          [:a {:href (str "contest/" (:id a))} "Edit2"]] ; TODO entfernen !!!!!
+        
        [:td [:button.btn.pull-right.btn-danger
              {:on-click #(remove-contest! (current-contest))}
              "\u00D7"]]])))
@@ -99,7 +103,7 @@
                           (reset! form-input-state initial-form-values))}
              "Add"]]])))
 
-(defn contests []
+(defn contest-list []
   [:div
    [:table.table.table-striped
     [:thead
@@ -109,9 +113,9 @@
      (map (fn [contest]
             ^{:key (str "contest-row-" (:id contest))}
             [contest-row contest])
-          (sort-by :name @app-state))
+          (sort-by :name @document))
      [contest-form]]]])
 
 (defn render-component []
-  (reagent/render-component [contests]
+  (reagent/render-component [contest-list]
                           (js/document.getElementById "app")))

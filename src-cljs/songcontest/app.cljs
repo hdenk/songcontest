@@ -1,5 +1,6 @@
 (ns songcontest.app
   (:require
-    [songcontest.contest]
-    [songcontest.song]))
+    [songcontest.contest-list]
+    [songcontest.contest-form]
+    [songcontest.song-list]))
     
