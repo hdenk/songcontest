@@ -5,7 +5,7 @@
                    [org.clojure/clojurescript "1.8.51"]
                    [org.clojure/core.async "0.2.374"]                 
                    [ring-server "0.4.0"]
-                   [fogus/ring-edn "0.2.0"]
+                   [fogus/ring-edn "0.3.0"]
                    [compojure "1.3.4"]
                    [hiccup "1.0.5"]
                    [liberator "0.14.1"]
@@ -14,7 +14,7 @@
                    [org.webjars/bootstrap "3.2.0"]
                    [org.clojure/java.jdbc "0.6.1"]
                    [com.h2database/h2 "1.4.189"]
-                   [reagent "0.5.0"]
+                   [reagent "0.5.1"]
                    [reagent-forms "0.5.23"]
                    [cljs-http "0.1.30"]]
 
