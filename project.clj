@@ -12,7 +12,7 @@
                    [prismatic/schema "1.1.1"]
                    [clj-json "0.5.3"]
                    [org.webjars/bootstrap "3.2.0"]
-                   [org.clojure/java.jdbc "0.6.0-rc2"]
+                   [org.clojure/java.jdbc "0.6.1"]
                    [com.h2database/h2 "1.4.189"]
                    [reagent "0.5.0"]
                    [reagent-forms "0.5.23"]
