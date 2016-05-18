@@ -25,6 +25,7 @@
   (jdbc/create-table-ddl table [[:id "BIGINT PRIMARY KEY AUTO_INCREMENT"]
                                 [:name "VARCHAR NOT NULL"]
                                 [:comment "VARCHAR NOT NULL"]
+                                [:active "CHAR(1) NOT NULL DEFAULT 'T'"]
                                 [:created_at "TIMESTAMP"]
                                 [:modified_at "TIMESTAMP"]]))
 
@@ -57,8 +58,8 @@
 
 (def contest1 {:name "#101" :phase "closed"})
 (def contest2 {:name "#102" :phase "new"})
-(def motto1 {:name "70er" :comment "Songs der 70er Jahre"})
-(def motto2 {:name "Zweite Chance" :comment "Songs die schon mal dran waren"})
+(def motto1 {:name "70er" :comment "Songs der 70er Jahre" :active \T})
+(def motto2 {:name "Zweite Chance" :comment "Songs die schon mal dran waren" :active \T})
 (def song1 {:artist "Sonic Youth" :title "Shadow of a Doubt"})
 (def song2 {:artist "Monster Magnet" :title "Look to the Orb for the Warning"})
 (def nomination1 {:maedchen 0 :contest 0 :song 0})
