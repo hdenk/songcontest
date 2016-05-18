@@ -39,6 +39,21 @@
     (update-in m [:phase] (fn [x] (if (string? x) (keyword x) x)))
     m))
 
+(def Motto
+  {:name s/Str
+   :comment s/Str})
+
+(defn coerce-params->motto [m]
+  (coerce-and-validate Motto 
+                       s-coerce/string-coercion-matcher
+                       m))
+
+(defn coerce-motto->db [m]
+    m)
+
+(defn coerce-db->motto [m]
+    m)
+
 (def Song
   {:artist s/Str
    :title s/Str})

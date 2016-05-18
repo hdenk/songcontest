@@ -7,7 +7,7 @@
   (if params
     (clojure.string/join ", " (map (fn [x] (if (string? x) 
                                              (str \" x \")
-                                              x)) 
+                                             x)) 
                                    params))
     ""))
 
@@ -21,8 +21,9 @@
        (include-css "/webjars/bootstrap/3.2.0/css/bootstrap-theme.min.css")]
      [:body
        [:p
-         [:a {:href "contest"} "Contest"]
-         [:a {:href "song"} "Song"]]]))
+         [:a {:href "/contest"} "Contest"]
+         [:a {:href "/motto"} "Motto"]
+         [:a {:href "/song"} "Song"]]]))
 
 (defn default  
   [name & params]
@@ -34,8 +35,9 @@
        (include-css "/webjars/bootstrap/3.2.0/css/bootstrap-theme.min.css")]
      [:body
        [:p
-         [:a {:href "contest"} "Contest"]
-         [:a {:href "song"} "Song"]]
+         [:a {:href "/contest"} "Contest"]
+         [:a {:href "/motto"} "Motto"]
+         [:a {:href "/song"} "Song"]]
 
        [:div {:id "app"}] 
       
@@ -47,6 +49,3 @@
          {:type "text/javascript"} 
          (format "goog.require(\"songcontest.%s\");
                   songcontest.%s.render_component(%s);" name name (to-argumentlist params))]]))
-
-
-(to-argumentlist '(13 "hans" 14 "sepp"))

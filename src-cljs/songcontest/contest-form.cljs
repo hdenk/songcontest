@@ -9,6 +9,14 @@
 
 (enable-console-print!)
 
+(defonce doc (atom {:name "" :phase ""}))
+
+(defn fetch-data! [id]
+   (go (let [response
+             (<! (http/get (str "/api/contest/" id)))
+             data (:body response)]
+         (reset! doc data))))
+
 (defn row [label input]
   [:div.row
     [:div.col-md-2 [:label label]]
@@ -16,26 +24,26 @@
 
 (def form-template
   [:div
-   (row "first name" [:input {:field :text :id :person.first-name}])
-   (row "last name" [:input {:field :text :id :person.last-name}])
-   (row "age" [:input {:field :numeric :id :person.age}])
-   (row "email" [:input {:field :email :id :person.email}])
-   (row "comments" [:textarea {:field :textarea :id :comments}])])
-
+   (row "name" 
+        [:input {:field :text :id :name}])
+   (row "phase" 
+        [:input {:field :text :id :phase}])
+   (row "phase2" 
+        [:select {:field :list :id :phase}
+         [:option {:key "new"} "Neu"]
+         [:option {:key "nominate"} "Anmeldung"]
+         [:option {:key "rate"} "Bewertung"]
+         [:option {:key "published"} "Ausgewerted"]
+         [:option {:key "closed"} "Abgeschlossen"]])])
+       
 (defn form []
-  (let [doc (atom {})]
-    (fn []
-      [:div
-       [:div.page-header [:h1 "Reagent Form"]]
-       [bind-fields form-template doc]
-       [:label (str @doc)]])))
-
+  (fn []
+    [:div
+     [:div.page-header [:h1 "Edit Contest"]]
+     [bind-fields form-template doc]
+     [:label (str @doc)]]))
+  
 (defn render-component [id]
+  (fetch-data! id)
   (reagent/render-component [form]
                           (js/document.getElementById "app")))
-
-#_
-(go (let [response
-          (<! (http/get "/api/contest"))
-          data (:body response)]
-      (reset! document (set data))))

@@ -40,7 +40,6 @@
 
   (ANY "/api/contest/:id"
        [id name phase]
-       (println "###" phase "###") 
        (let [id (edn/read-string id)]
          (resource
            :available-media-types ["application/edn"]
@@ -54,6 +53,40 @@
            :new? false
            :respond-with-entity? true
            :delete! (fn [ctx] (persist/delete-contest! db/db id))
+           :handle-exception handle-exception)))
+
+  (ANY "/api/motto"
+       [name comment]
+       (resource
+        :available-media-types ["application/edn"]
+        :allowed-methods [:get :post]
+        :handle-ok (fn [ctx]
+                     (let [found (persist/read-motto db/db)]
+                       (condp = (-> ctx :representation :media-type)
+                         "application/edn" found
+                         "application/json" (json/generate-string found))))
+        :post! (fn [ctx] 
+                 (let [c (schema/coerce-params->motto {:name name 
+                                                       :comment comment})]
+                   {::id (persist/create-motto! db/db c)})) 
+        :post-redirect? (fn [ctx] {:location (str "/api/motto/" (::id ctx))})
+        :handle-exception handle-exception))
+
+  (ANY "/api/motto/:id"
+       [id name comment]
+       (let [id (edn/read-string id)]
+         (resource
+           :available-media-types ["application/edn"]
+           :allowed-methods [:get :put :delete]
+           :handle-ok (fn [ctx]
+                        (persist/read-motto db/db id))
+           :put! (fn [ctx]
+                   (let [c (schema/coerce-params->motto {:name name 
+                                                         :comment comment})]
+                     (persist/update-motto! db/db id c)))
+           :new? false
+           :respond-with-entity? true
+           :delete! (fn [ctx] (persist/delete-motto! db/db id))
            :handle-exception handle-exception)))
 
   (ANY "/api/song"
@@ -105,7 +138,12 @@
   (GET "/contest/:id" 
        [id]
        (page/default "contest_form" id))
- 
+
+  (GET "/motto" 
+     []
+     (page/default "motto_list"))
+
+
   (GET "/song" 
        []
        (page/default "song_list"))

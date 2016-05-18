@@ -8,13 +8,13 @@
 
 (enable-console-print!)
 
-(defonce document (atom #{}))
+(defonce doc (atom #{}))
 
 ;; initial call to get contests from server
 (go (let [response
           (<! (http/get "/api/contest"))
           data (:body response)]
-      (reset! document (set data))))
+      (reset! doc (set data))))
 
 ;;; crud operations
 
@@ -25,14 +25,14 @@
      (go (let [response 
                (<! (http/post "/api/contest" {:edn-params
                                               contest}))]
-          (swap! document conj (:body response)))))
+          (swap! doc conj (:body response)))))
 
 (defn remove-contest! [contest]
   (go (let [response
             (<! (http/delete (str "/api/contest/"
                                   (:id contest))))]
         (if (= 200 (:status response))
-          (swap! document remove-by-id (:id contest))))))
+          (swap! doc remove-by-id (:id contest))))))
 
 (defn edit-contest [])
 
@@ -41,7 +41,7 @@
             (<! (http/put (str "/api/contest/" (:id contest))
                           {:edn-params contest}))
             updated-contest (:body response)]
-        (swap! document
+        (swap! doc
                (fn [old-state]
                  (conj
                   (remove-by-id old-state (:id contest))
@@ -113,8 +113,9 @@
      (map (fn [contest]
             ^{:key (str "contest-row-" (:id contest))}
             [contest-row contest])
-          (sort-by :name @document))
-     [contest-form]]]])
+          (sort-by :name @doc))
+     [contest-form]
+     [:label (str @doc)]]]])
 
 (defn render-component []
   (reagent/render-component [contest-list]

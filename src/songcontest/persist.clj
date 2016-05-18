@@ -18,13 +18,21 @@
          id (get (first result) (keyword "scope_identity()"))]
         id)))
 
+(defn print-row [row]
+  (println row)
+  row)
+
 (defn read-contest
   ([db]
-   (map (fn [m] (schema/coerce-db->contest m)) (jdbc/query db ["select * from contest"])))
+   (jdbc/query db 
+               ["select * from contest"] 
+               {:row-fn schema/coerce-db->contest}))
   ([db id]
-   (schema/coerce-db->contest (first (jdbc/query db [(str "select * from contest\n"
-                                                      "where id = ?") id])))))
-
+   (jdbc/query db 
+               [(str "select * from contest\n"
+                     "where id = ?") id] 
+               {:result-set-fn first :row-fn schema/coerce-db->contest})))
+          
 (defn update-contest!
   [db id m]
   (jdbc/update! db :contest (schema/coerce-contest->db (timestamp-modified_at m)) ["id = ?" id]))
@@ -34,6 +42,35 @@
    (jdbc/execute! db ["delete from contest"]))
   ([db id]
    (jdbc/delete! db :contest ["id = ?" id])))
+
+;;; Motto
+
+(defn create-motto!
+  ([db m]
+   (let [result (jdbc/insert! db :motto  (schema/coerce-motto->db (timestamp-created_at m)))
+         id (get (first result) (keyword "scope_identity()"))]
+        id)))
+
+(defn read-motto
+  ([db]
+   (jdbc/query db 
+               ["select * from motto"]
+               {:row-fn schema/coerce-db->motto}))
+  ([db id]
+   (jdbc/query db 
+               [(str "select * from motto\n"
+                     "where id = ?") id]
+               {:result-set-fn first :row-fn schema/coerce-db->contest})))
+
+(defn update-motto!
+  [db id m]
+  (jdbc/update! db :motto (schema/coerce-motto->db (timestamp-modified_at m)) ["id = ?" id]))
+
+(defn delete-motto!
+  ([db]
+   (jdbc/execute! db ["delete from motto"]))
+  ([db id]
+   (jdbc/delete! db :motto ["id = ?" id])))
 
 ;;; Song
 
@@ -45,10 +82,14 @@
 
 (defn read-song
   ([db]
-   (map (fn [m] (schema/coerce-db->song m)) (jdbc/query db ["select * from song"])))
+   (jdbc/query db 
+               ["select * from song"]
+               {:row-fn schema/coerce-db->song}))
   ([db id]
-   (schema/coerce-db->song (first (jdbc/query db [(str "select * from song\n"
-                                                       "where id = ?") id])))))
+   (jdbc/query db 
+               [(str "select * from song\n"
+                     "where id = ?") id]
+               {:result-set-fn first :row-fn schema/coerce-db->contest})))
 
 (defn update-song!
   [db id m]
@@ -70,10 +111,14 @@
 
 (defn read-nomination
   ([db]
-   (map (fn [m] (schema/coerce-db->nomination m)) (jdbc/query db ["select * from nomination"])))
+   (jdbc/query db 
+               ["select * from nomination"]
+               {:row-fn schema/coerce-db->nomination}))
   ([db id]
-   (schema/coerce-db->nomination (first (jdbc/query db [(str "select * from nomination\n"
-                                                             "where id = ?" id)])))))
+   (jdbc/query db 
+               [(str "select * from nomination\n"
+                     "where id = ?") id]
+               {:result-set-fn first :row-fn schema/coerce-db->nomination})))
 
 (defn update-nomination!
   [db id m]

@@ -1,4 +1,4 @@
-(ns songcontest.song-list
+(ns songcontest.motto-list
   (:require-macros [cljs.core.async.macros :refer (go)])
   (:require
    [reagent.core :as reagent :refer [atom]]
@@ -10,9 +10,9 @@
 
 (defonce doc (atom #{}))
 
-;; initial call to get songs from server
+;; initial call to get mottos from server
 (go (let [response
-          (<! (http/get "/api/song"))
+          (<! (http/get "/api/motto"))
           data (:body response)]
       (reset! doc (set data))))
 
@@ -21,29 +21,29 @@
 (defn remove-by-id [s id]
   (set (remove #(= id (:id %)) s)))
 
-(defn add-song! [song]
+(defn add-motto! [motto]
      (go (let [response 
-               (<! (http/post "/api/song" {:edn-params
-                                                 song}))]
+               (<! (http/post "/api/motto" {:edn-params
+                                                 motto}))]
           (swap! doc conj (:body response)))))
 
-(defn remove-song! [song]
+(defn remove-motto! [motto]
   (go (let [response
-            (<! (http/delete (str "/api/song/"
-                                  (:id song))))]
+            (<! (http/delete (str "/api/motto/"
+                                  (:id motto))))]
         (if (= 200 (:status response))
-          (swap! doc remove-by-id (:id song))))))
+          (swap! doc remove-by-id (:id motto))))))
  
-(defn update-song! [song]
+(defn update-motto! [motto]
   (go (let [response
-            (<! (http/put (str "/api/song/" (:id song))
-                          {:edn-params song}))
-            updated-song (:body response)]
+            (<! (http/put (str "/api/motto/" (:id motto))
+                          {:edn-params motto}))
+            updated-motto (:body response)]
         (swap! doc
                (fn [old-state]
                  (conj
-                  (remove-by-id old-state (:id song))
-                  updated-song))))))
+                  (remove-by-id old-state (:id motto))
+                  updated-motto))))))
 
 ;;; end crud operations
 
@@ -57,62 +57,62 @@
     [:p (get @atom key)]))
 
 (defn input-valid? [atom]
-  (and (seq (-> @atom :artist))
-       (seq (-> @atom :title))))
+  (and (seq (-> @atom :name))
+       (seq (-> @atom :comment))))
 
-(defn song-row [a]
+(defn motto-row [a]
   (let [row-state (atom {:editing? false
-                         :artist     (:artist a)
-                         :title  (:title a)})
-        current-song (fn []
+                         :name     (:name a)
+                         :comment  (:comment a)})
+        current-motto (fn []
                        (assoc a
-                              :artist (:artist @row-state)
-                              :title (:title @row-state)))]
+                              :name (:name @row-state)
+                              :comment (:comment @row-state)))]
     (fn []
       [:tr
-       [:td [editable-input row-state :artist]]
-       [:td [editable-input row-state :title]]
+       [:td [editable-input row-state :name]]
+       [:td [editable-input row-state :comment]]
        [:td [:button.btn.btn-primary.pull-right
              {:disabled (not (input-valid? row-state))
               :on-click (fn []
                          (when (:editing? @row-state)
-                           (update-song! (current-song)))
+                           (update-motto! (current-motto)))
                          (swap! row-state update-in [:editing?] not))}
              (if (:editing? @row-state) "Save" "Edit")]]
        [:td [:button.btn.pull-right.btn-danger
-             {:on-click #(remove-song! (current-song))}
+             {:on-click #(remove-motto! (current-motto))}
              "\u00D7"]]])))
 
-(defn song-form []
-  (let [initial-form-values {:artist     ""
-                             :title  ""
+(defn motto-form []
+  (let [initial-form-values {:name     ""
+                             :comment  ""
                              :editing? true}
         form-input-state (atom initial-form-values)]
     (fn []
       [:tr
-       [:td [editable-input form-input-state :artist]]
-       [:td [editable-input form-input-state :title]]
+       [:td [editable-input form-input-state :name]]
+       [:td [editable-input form-input-state :comment]]
        [:td [:button.btn.btn-primary.pull-right
              {:disabled (not (input-valid? form-input-state))
               :on-click  (fn []
-                          (add-song! @form-input-state)
+                          (add-motto! @form-input-state)
                           (reset! form-input-state initial-form-values))}
              "Add"]]])))
 
-(defn song-list []
+(defn motto-list []
   [:div
    [:table.table.table-striped
     [:thead
      [:tr
-      [:th "Artist"] [:th "Title"] [:th ""] [:th ""]]]
+      [:th "name"] [:th "comment"] [:th ""] [:th ""]]]
     [:tbody
-     (map (fn [song]
-            ^{:key (str "song-row-" (:id song))}
-            [song-row song])
-          (sort-by :artist @doc))
-     [song-form]
+     (map (fn [motto]
+            ^{:key (str "motto-row-" (:id motto))}
+            [motto-row motto])
+          (sort-by :name @doc))
+     [motto-form]
      [:label (str @doc)]]]])
 
 (defn render-component []
-  (reagent/render-component [song-list]
+  (reagent/render-component [motto-list]
                           (js/document.getElementById "app")))
