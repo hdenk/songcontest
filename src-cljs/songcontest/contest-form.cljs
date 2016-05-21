@@ -13,13 +13,14 @@
                     :motto #{}}))
 
 (defn fetch-data! [id]
-   (let [response (http/get "/api/motto")
+  (go
+   (let [response (<! (http/get "/api/motto"))
          data (:body response)]
      (swap! doc update-in [:motto] (fn [_] (set data))))
-   (go (let [response
-             (<! (http/get (str "/api/contest/" id)))
+   (let [response (<! (http/get (str "/api/contest/" id)))
              data (:body response)]
-         (swap! doc update-in [:contest] (fn [_] data)))))
+        (swap! doc update-in [:contest] (fn [_] data)))
+   doc)) 
    
 (defn row [label input]
   [:div.row
@@ -39,8 +40,8 @@
         [:input {:field :text :id :contest.phase}])
    (row "Motto" 
         [:select {:field :list :id :contest.motto}
-          (map (fn [motto] (js/console.log "###Motto###") [:option {:key (str (:id motto))} (:name motto)])
-               (:motto @doc))]) 
+          (map (fn [motto] [:option {:key (str (:id motto))} (:name motto)])
+               (do (js/console.log (str "###Motto###" (:motto @doc)) (:motto @doc))))]) 
    (row "Phase2"
          [:input {:field :text :id :contest.phase}])
    [:h3 "Phasen"]
@@ -59,7 +60,9 @@
      [:label (str @doc)]]))
   
 (defn render-component [id]
-  (js/console.log "###render-component*###") ; TODO entfernen !!!
-  (fetch-data! id)
-  (reagent/render-component [form]
-                          (js/document.getElementById "app")))
+  (js/console.log "###render-component###") ; TODO entfernen !!!
+  (go
+    (<! (fetch-data! id))
+    (js/console.log (str (:motto @doc))) ; TODO entfernen !!!
+    (reagent/render-component [form]
+                          (js/document.getElementById "app"))))
